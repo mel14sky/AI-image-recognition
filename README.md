@@ -11,7 +11,7 @@ Team Avid C Haters
 
 [google doc](https://docs.google.com/document/d/1bYtS-HJQukRuRx0F0iE_WTJjWYI5F5ddWwFLTJYxAVo/edit?usp=sharing)
 
- # demo from google
+ ### demo from google
  - download the two mice files
  - go to the [google teachable machine](https://teachablemachine.withgoogle.com)
  - click get started

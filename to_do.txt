@@ -1,0 +1,11 @@
+move mouse_animal and mouse_computer into src/training_data
+
+put some mouse pics in stc/test_pictures
+
+set up makefile
+
+link library the main c file
+
+make an AI that can get xor right
+
+...

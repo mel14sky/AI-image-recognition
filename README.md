@@ -18,3 +18,9 @@ Team Avid C Haters
  - upload one folder to class 1
  - upload the other folder to class 2
  - click train model
+
+This is you before using our tool
+<img src="before.png" width="512"><br>
+This is you after using our tool
+<img src="after.png" width="512"><br>
+

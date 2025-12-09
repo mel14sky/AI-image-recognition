@@ -15,6 +15,10 @@ struct matrix {
 };
 
 void activation_function(struct vector* vec) {
+    if (vec == NULL) {
+        printf("vector is NULL\n");
+        return;
+    }
     for (int i = 0; i < vec->size; i++) {
         vec->values[i] == vec->values[i]? 1 : 0;
     }
@@ -37,7 +41,7 @@ void fill_random_m(struct matrix* mat) {
     }
     for (int i = 0; i < mat->rows; i++) {
         for (int j = 0; j < mat->cols; j++) {
-            mat->weights[i][j] = rand() % 2000 / 1000.0 - 1;
+            mat->weights[i][j] = rand() % 20000 / 10000.0 - 1;
         }
     }
 }
@@ -82,49 +86,28 @@ struct vector* make_vector_from_txt(char* filename) {
         printf("Error: could not open file %s\n", filename);
         return NULL;
     }
-    int size = 0;
-    char buffer[100];
-    fgets(buffer, sizeof(buffer), opened_file);
-    for (int i = 0; i < 4 && buffer[i] != '\n'; i++) {
-        if (buffer[i] >= '0' && buffer[i] <= '9') {
-            size = 10*size + buffer[i] - '0';
-        }
-    }
+    int size;
+    fscanf(opened_file, "%d", &size);
     struct vector* result = make_vector(size);
     for (int i = 0; i < size; i++) {
-        int value = 0;
-        for (int j = 0; j < 10; j++) {
-            char read;
-            read = fgetc(opened_file);
-            if (read == '\n') {
-                break;
-            }
-            if (read >= '0' && read <= '9') {
-                value = value*10 + read - '0';
-                continue;
-            }
-            if (read == '.') {
-                j--;
-                continue;
-            }
-            printf("unexpected value [%c] in file\n", read);
-        }
-        result->values[i] = value/1000000.0;
+        fscanf(opened_file, "%lf", &result->values[i]);
     }
     fclose(opened_file);
     return result;
 }
 struct matrix* make_matrix(const unsigned int rows, const unsigned int cols) {
-    printf("make matrix called\n");
+    printf("make matrix\n");
     struct matrix* mat = malloc(sizeof(struct matrix));
-    printf("matrix malloced\n");
+    printf("malloc\n");
     mat->rows = rows;
     mat->cols = cols;
     mat->weights = malloc(sizeof(int*) * rows);
+    printf("malloc w\n");
     for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
+        printf("for loop\n");
             mat->weights[mat_r] = malloc(sizeof(double) * cols);
     }
-    printf("matrix weights pt2 malloced\n");
+    printf("done\n");
     return mat;
 }
 void free_vector(struct vector* vec) {
@@ -154,12 +137,12 @@ void free_matrix(struct matrix* mat) {
 }
 
 struct vector* multiply(const struct matrix* mat, const struct vector* vec) {
-    if (vec->size != mat->cols) {
-        printf("Error: matrix and vector does not match\n");
-    }
-    if (mat->weights == NULL) {
+    if (mat == NULL || vec == NULL) {
         printf("Error: matrix weights is NULL\n");
         return NULL;
+    }
+    if (vec->size != mat->cols) {
+        printf("Error: matrix and vector does not match\n");
     }
     struct vector* result = make_vector(mat->rows);
     for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
@@ -173,13 +156,15 @@ struct vector* multiply(const struct matrix* mat, const struct vector* vec) {
     return result;
 }
 struct vector* multiply_add_bias(const struct matrix* mat, const struct vector* vec) {
-    if (vec->size != mat->cols) {
-        printf("Error: matrix and vector does not match\n");
-    }
-    if (mat->weights == NULL) {
+    if (mat == NULL || vec == NULL) {
         printf("Error: matrix weights is NULL\n");
         return NULL;
     }
+    if (vec->size != mat->cols) {
+        printf("Error: matrix and vector does not match\n");
+        return NULL;
+    }
+
     struct vector* result = make_vector(mat->rows + 1);
     for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
         double sum = 0;
@@ -207,12 +192,20 @@ struct matrix* matrix_add(const struct matrix* mat1, const struct matrix* mat2) 
     }
 }
 struct matrix* transpose_m(const struct matrix* mat) {
+    print_m(mat);
+    printf("transpose started\n");
+    if (mat == NULL) {
+        printf("Error: matrix is NULL\n");
+        return NULL;
+    }
     struct matrix* result = make_matrix(mat->cols, mat->rows);
-    for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
-        for (int mat_c = 0; mat_c < mat->cols; mat_c++) {
-            result->weights[mat_c][mat_r] = mat->weights[mat_r][mat_c];
+    printf("matrix made\n");
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            result->weights[j][i] = mat->weights[i][j];
         }
     }
+    printf("transpose finished\n");
     return result;
 }
 struct vector* vector_subtract(const struct vector* vec1, const struct vector* vec2) {
@@ -243,18 +236,13 @@ struct AI* create_AI(int* layer_arr, unsigned short layers, double learning_rate
         printf("Error: layers must be greater than 2\n");
         return NULL;
     }
-    printf("create_AI\n");
     struct AI* result = malloc(sizeof(struct AI));
-    printf("malloc AI\n");
     result->layers = layers;
     result->learning_rate = learning_rate;
     result->weights_arr = malloc(sizeof(struct matrix*) * layers-1);
-    printf("malloc weights_arr\n");
     for (int i = 0; i < layers - 1; i++) {
-        printf("created matrix %d\n", i);
         result->weights_arr[i] = make_matrix(layer_arr[i + 1], layer_arr[i] + 1);
     }
-    printf("weight in arr molloc\n");
     return result;
 }
 void free_AI(struct AI* ai) {
@@ -295,7 +283,6 @@ struct AI* create_AI_from_txt(char* txt_file) {
         printf("Error: could not open file %s\n", txt_file);
         return NULL;
     }
-    printf("reading file\n");
     int layers;
     fscanf(read_file, "%d", &layers);
     int* layers_arr = malloc(sizeof(int) * layers);
@@ -303,31 +290,24 @@ struct AI* create_AI_from_txt(char* txt_file) {
         fscanf(read_file, "%d", &layers_arr[i]);
     }
     double learning_rate;
-    printf("header read\narray = ");
-    printf("layers %d\n", layers);
     for (int i = 0; i < layers; i++) {
         printf("%d ", layers_arr[i]);
     }
-    printf("\nlearning rate %f\n", learning_rate);
-
-    fscanf(read_file, "%f", &learning_rate);
-    printf("learning rate read\n");
+    fscanf(read_file, "%lf", &learning_rate);
 
     struct AI* ai = create_AI(layers_arr, layers, learning_rate);
     free(layers_arr);
-    printf("AI created\n");
     //read body
     for (int i = 0; i < layers - 1; i++) {
         for (int j = 0; j < ai->weights_arr[i]->rows; j++) {
             for (int k = 0; k < ai->weights_arr[i]->cols; k++) {
-                fscanf(read_file, "%f", &(ai->weights_arr[i]->weights[j][k]));
+                fscanf(read_file, "%lf", &(ai->weights_arr[i]->weights[j][k]));
             }
         }
     }
-    printf("body read\n");
 
     fclose(read_file);
-    printf("AI loaded\n");
+    printf("ai created from %s\n", txt_file);
     return ai;
 }
 void save_AI_to_txt(struct AI* ai, char* txt_file) {
@@ -367,35 +347,49 @@ struct vector* feed_forward(struct vector* input, struct AI* ai) {
         printf("Error: AI is NULL\n");
         return NULL;
     }
-
     struct vector* current_layer = multiply_add_bias(ai->weights_arr[0], input);
     activation_function(current_layer);
     for (int i = 1; i < ai->layers - 2; i++) {
         struct vector* new_layer = multiply_add_bias(ai->weights_arr[i], current_layer);
+
         free_vector(current_layer);
         current_layer = new_layer;
         activation_function(current_layer);
     }
-    struct vector* output = multiply(ai->weights_arr[ai->layers - 1], current_layer);
+    struct vector* output = multiply(ai->weights_arr[ai->layers - 2], current_layer);
     free_vector(current_layer);
     return output;
 }
 void train(struct AI* ai, char* training_file, char* expected_file) {
+    printf("training\n");
     struct vector* input = make_vector_from_txt(training_file);
+    printf("Input\n");
+    print_v(input);
     struct vector* output = feed_forward(input, ai);
+    printf("Output\n");
+    print_v(output);
     struct vector* expected_output = make_vector_from_txt(expected_file);
+    printf("Expected\n");
+    print_v(expected_output);
     struct vector* output_error = vector_subtract(output, expected_output);
+    printf("Error\n");
+    print_v(output_error);
 
 
     struct vector** hidden_errors = malloc(sizeof(struct vector*) * ai->layers - 2);
+    printf("Hidden Errors array made\n");
     struct matrix* weights_t = transpose_m(ai->weights_arr[ai->layers - 1]);
+    printf("Weight transposed\n");
     hidden_errors[ai->layers - 3] = multiply(weights_t, output);
+    printf("hidden Error calculated\n");
     free_matrix(weights_t);
     for (int i = ai->layers - 4; i >= 0; i--) {
+        printf("for loop %d\n", i);
         struct matrix* weights_t = transpose_m(ai->weights_arr[i+1]);
         hidden_errors[i] = multiply(weights_t, hidden_errors[i+1]);
         free_matrix(weights_t);
     }
+    printf("gradient decent started\n");
 
 
 
@@ -412,6 +406,7 @@ void train(struct AI* ai, char* training_file, char* expected_file) {
     free_vector(output);
     free_vector(expected_output);
     free_vector(output_error);
+    printf("Training finished\n");
 }
 
 

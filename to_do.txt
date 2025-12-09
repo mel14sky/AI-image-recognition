@@ -4,8 +4,6 @@ put some mouse pics in stc/test_pictures
 
 set up makefile
 
-link library the main c file
-
 make an AI that can get xor right
 
 ...

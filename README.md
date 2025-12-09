@@ -20,7 +20,7 @@ Team Avid C Haters
  - click train model
 
 This is you before using our tool
-<img src="before.png" width="512"><br>
+<img src="assets/before.png" width="512"><br>
 This is you after using our tool
-<img src="after.png" width="512"><br>
+<img src="assets/after.png" width="512"><br>
 

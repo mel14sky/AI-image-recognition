@@ -98,14 +98,11 @@ struct vector* make_vector_from_txt(char* filename) {
 struct matrix* make_matrix(const unsigned int rows, const unsigned int cols) {
     printf("make matrix\n");
     struct matrix* mat = malloc(sizeof(struct matrix));
-    printf("malloc\n");
     mat->rows = rows;
     mat->cols = cols;
-    mat->weights = malloc(sizeof(int*) * rows);
-    printf("malloc w\n");
+    mat->weights = malloc(sizeof(double*) * rows);
     for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
-        printf("for loop\n");
-            mat->weights[mat_r] = malloc(sizeof(double) * cols);
+        mat->weights[mat_r] = malloc(sizeof(double) * cols);
     }
     printf("done\n");
     return mat;
@@ -361,6 +358,9 @@ struct vector* feed_forward(struct vector* input, struct AI* ai) {
     return output;
 }
 void train(struct AI* ai, char* training_file, char* expected_file) {
+    if (ai == NULL){
+        printf("ai is null");
+    }
     printf("training\n");
     struct vector* input = make_vector_from_txt(training_file);
     printf("Input\n");
@@ -377,9 +377,8 @@ void train(struct AI* ai, char* training_file, char* expected_file) {
 
 
     struct vector** hidden_errors = malloc(sizeof(struct vector*) * ai->layers - 2);
-    printf("Hidden Errors array made\n");
-    struct matrix* weights_t = transpose_m(ai->weights_arr[ai->layers - 1]);
-    printf("Weight transposed\n");
+    printf("%d Hidden Errors array made\n", ai->layers - 2);
+    struct matrix* weights_t = transpose_m(ai->weights_arr[ai->layers - 2]);
     hidden_errors[ai->layers - 3] = multiply(weights_t, output);
     printf("hidden Error calculated\n");
     free_matrix(weights_t);

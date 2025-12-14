@@ -1,5 +1,11 @@
 import tkinter as tk
 from tkinterdnd2 import DND_FILES, TkinterDnD
+import pygame
+
+# Initialises Pygame mixer and loads startup sound
+pygame.mixer.init()
+startup_sound = pygame.mixer.Sound("whos-that-pokemon_.mp3")
+startup_sound.play()
 
 # Begins the Tkinter main window
 root = TkinterDnD.Tk()
@@ -27,5 +33,6 @@ lb.insert(1, "Drag and Drop Pokemon image files here")
 lb.drop_target_register(DND_FILES)
 lb.dnd_bind('<<Drop>>', lambda e: lb.insert(tk.END, e.data))
 lb.pack()
+
 # Ends the Tkinter main window
 root.mainloop()

@@ -1,6 +1,4 @@
-move mouse_animal and mouse_computer into src/training_data
-
-put some mouse pics in stc/test_pictures
+make the locator file for XOR then the locator and vector files for imidge recognition
 
 set up makefile
 

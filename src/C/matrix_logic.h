@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 struct vector {
     unsigned int size;
     double* values;
@@ -209,8 +210,31 @@ void multiply_scalar_v(const struct vector* vec, const double scalar) {
         vec->values[vec_i] *= scalar;
     }
 }
+struct matrix* divide_scalar_m(const struct matrix* mat, const double scalar) {
+    if (mat == NULL) {
+        printf("Error: matrix is NULL\n");
+        return NULL;
+    }
+    struct matrix* result = make_matrix(mat->rows, mat->cols);
+    for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
+        for (int mat_c = 0; mat_c < mat->cols; mat_c++) {
+            result->weights[mat_r][mat_c] = mat->weights[mat_r][mat_c] / scalar;
+        }
+    }
+    return result;
+}
 
-
+void matrix_fill(struct matrix* mat, double fill_value) {
+    if (mat == NULL) {
+        printf("Error: matrix is NULL\n");
+        return;
+    }
+    for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
+        for (int mat_c = 0; mat_c < mat->cols; mat_c++) {
+            mat->weights[mat_r][mat_c] = fill_value;
+        }
+    }
+}
 void matrix_add(struct matrix* mat1, const struct matrix* mat2) {
     if (mat1 == NULL || mat2 == NULL) {
         printf("Error: matrix is NULL\n");
@@ -318,8 +342,6 @@ void print_AI(struct AI* ai) {
     }
 
 }
-
-
 void randomize_AI_weights(struct AI* ai) {
     if (ai == NULL) {
         printf("Error: AI is NULL\n");
@@ -427,7 +449,7 @@ struct vector* feed_forward(struct vector* input, struct AI* ai) {
     return output;
 }
 
-void train(struct AI* ai, char* training_file, char* expected_file) {
+void train_single(struct AI* ai, char* training_file, char* expected_file) {
 
     struct vector* input = make_vector_from_txt(training_file);
     struct vector** hidden = malloc(sizeof(struct vector*) * ai->layers - 2);
@@ -459,7 +481,7 @@ void train(struct AI* ai, char* training_file, char* expected_file) {
     }
 
 
-    struct matrix* deltas = calculate_deltas(ai, hidden[ai->layers - 3], output, output_error);;
+    struct matrix* deltas = calculate_deltas(ai, hidden[ai->layers - 3], output, output_error);
     matrix_add(ai->weights_arr[ai->layers - 2], deltas);
     free_matrix(deltas);
     for (int i = ai->layers - 3; i > 0; i--) {
@@ -484,6 +506,118 @@ void train(struct AI* ai, char* training_file, char* expected_file) {
     free_vector(output);
     free_vector(expected_output);
     free_vector(output_error);
+}
+
+void train(struct AI* ai, char* training_index_file) {
+    printf("train2 started\n");
+    FILE* index_file = fopen(training_index_file, "r");
+    if (index_file == NULL) {
+        printf("Error: could not open file %s\n", training_index_file);
+        return;
+    }
+    int training_size;
+    fscanf(index_file, "%d", &training_size);
+    if (training_size <= 0) {
+        printf("Error: invalid size %d\n", training_size);
+        return;
+    }
+    struct vector** inputs = malloc(sizeof(struct vector*) * training_size);
+    struct vector** expected_outputs = malloc(sizeof(struct vector*) * training_size);
+
+    char buffer[100];
+    char word[50];
+    fgets(buffer, sizeof(buffer), index_file);
+    for (int i = 0; i < training_size; i++) {
+        int position = 0, word_position = 0;
+        fgets(buffer, sizeof(buffer), index_file);
+        while (buffer[position] != ' ' && position < 50) {
+            word[word_position] = buffer[position];
+            position++;
+            word_position++;
+        }
+        word[word_position] = '\0';
+        inputs[i] = make_vector_from_txt(word);
+        word_position = 0;
+        position++;
+
+        while (buffer[position] != '\n' && position < 100) {
+            word[word_position] = buffer[position];
+            position++;
+            word_position++;
+        }
+        word[word_position] = '\0';
+        expected_outputs[i] = make_vector_from_txt(word);
+    }
+    fclose(index_file);
+    printf("read file into inputs[] and expected_outputs[]\n");
+
+
+    struct matrix*** deltas = malloc(sizeof(struct matrix**) * training_size); //an array of arrays of matrix pointers, god has no eyes
+    for (int i = 0; i < training_size; i++) {
+        deltas[i] = malloc(sizeof(struct matrix*) * (ai->layers - 2));
+    }// making the arrays of matrix pointers
+    printf("deltas *** made\n");
+
+
+    for (int training_count = 0; training_count < training_size; training_count++) {
+        struct vector** hidden = malloc(sizeof(struct vector*) * (ai->layers - 2));
+
+        hidden[0] = multiply_add_bias(ai->weights_arr[0], inputs[training_count]);
+        activation_function(hidden[0]);
+        for (int i = 1; i < ai->layers - 2; i++) {
+            hidden[i] = multiply_add_bias(ai->weights_arr[i], hidden[i-1]);
+            activation_function(hidden[i]);
+        }
+        struct vector* output = multiply(ai->weights_arr[ai->layers - 2], hidden[ai->layers - 3]);
+        activation_function(output);
+        printf("forward feed done\n");
+
+        struct vector* output_error = vector_subtract(output, expected_outputs[training_count]);
+        struct vector** hidden_errors = malloc(sizeof(struct vector*) * (ai->layers - 2));
+        struct matrix* weights_t = transpose_m(ai->weights_arr[ai->layers - 2]);
+        hidden_errors[ai->layers - 3] = multiply(weights_t, output);
+        free_matrix(weights_t);
+        for (int i = ai->layers - 4; i >= 0; i--) {
+            struct matrix* weights_t = transpose_m(ai->weights_arr[i+1]);
+            hidden_errors[i] = multiply(weights_t, hidden_errors[i+1]);
+            free_matrix(weights_t);
+        }
+        printf("backward feed done\n");
+
+        deltas[training_count][ai->layers - 2] = calculate_deltas(ai, hidden[ai->layers - 3], output, output_error);;
+        for (int i = ai->layers - 3; i > 0; i--) {
+            deltas[training_count][i] = calculate_deltas(ai, hidden[i - 1], hidden[i], hidden_errors[i]);
+        }
+        deltas[training_count][0] = calculate_deltas(ai, inputs[training_count], hidden[0], hidden_errors[0]);
+        printf("calculated deltas\n");
+    }
+
+
+    printf("adjusting weights\n");
+    for (int weight_layer = 0; weight_layer < ai->layers - 2; weight_layer++) {
+        struct matrix* total_matrix = make_matrix(ai->weights_arr[weight_layer]->rows, ai->weights_arr[weight_layer]->cols);
+        matrix_fill(total_matrix, 0);
+        for (int training_count = 0; training_count < training_size; training_count++) {
+            matrix_add(total_matrix, deltas[training_count][weight_layer]);
+            free_matrix(deltas[training_count][weight_layer]);
+        }
+        free_matrix(ai->weights_arr[weight_layer]);
+        ai->weights_arr[weight_layer] = divide_scalar_m(total_matrix, training_size);
+        free_matrix(total_matrix);
+    }//adjusting the weights
+
+
+    printf("freeing the allocated memory\n");
+    for (int i = 0; i < training_size; i++) {
+        printf("%d\n", i);
+        free(deltas[i]);
+        free_vector(inputs[i]);
+        free_vector(expected_outputs[i]);
+    }
+    printf("free pt2\n");
+    free(deltas);
+    free(inputs);
+    free(expected_outputs);
 }
 
 

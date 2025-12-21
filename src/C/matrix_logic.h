@@ -509,6 +509,10 @@ void train_single(struct AI* ai, char* training_file, char* expected_file) {
 }
 
 void train(struct AI* ai, char* training_index_file) {
+    if (ai == NULL) {
+        printf("Error: invalid ai\n");
+        return;
+    }
     printf("train2 started\n");
     FILE* index_file = fopen(training_index_file, "r");
     if (index_file == NULL) {
@@ -550,6 +554,12 @@ void train(struct AI* ai, char* training_index_file) {
     }
     fclose(index_file);
     printf("read file into inputs[] and expected_outputs[]\n");
+    for (int i = 0; i < training_size; i++) {
+        printf("inputs[%d]:\n", i);
+        print_v(inputs[i]);
+        printf("expected_outputs[%d]:\n", i);
+        print_v(expected_outputs[i]);
+    }
 
 
     struct matrix*** deltas = malloc(sizeof(struct matrix**) * training_size); //an array of arrays of matrix pointers, god has no eyes
@@ -570,7 +580,7 @@ void train(struct AI* ai, char* training_index_file) {
         }
         struct vector* output = multiply(ai->weights_arr[ai->layers - 2], hidden[ai->layers - 3]);
         activation_function(output);
-        printf("forward feed done\n");
+        //forward feed done
 
         struct vector* output_error = vector_subtract(output, expected_outputs[training_count]);
         struct vector** hidden_errors = malloc(sizeof(struct vector*) * (ai->layers - 2));
@@ -582,14 +592,14 @@ void train(struct AI* ai, char* training_index_file) {
             hidden_errors[i] = multiply(weights_t, hidden_errors[i+1]);
             free_matrix(weights_t);
         }
-        printf("backward feed done\n");
+        //back propagation done
 
-        deltas[training_count][ai->layers - 2] = calculate_deltas(ai, hidden[ai->layers - 3], output, output_error);;
+        deltas[training_count][ai->layers - 2] = calculate_deltas(ai, hidden[ai->layers - 3], output, output_error);
         for (int i = ai->layers - 3; i > 0; i--) {
             deltas[training_count][i] = calculate_deltas(ai, hidden[i - 1], hidden[i], hidden_errors[i]);
         }
         deltas[training_count][0] = calculate_deltas(ai, inputs[training_count], hidden[0], hidden_errors[0]);
-        printf("calculated deltas\n");
+        //calculate deltas done
     }
 
 
@@ -603,16 +613,20 @@ void train(struct AI* ai, char* training_index_file) {
         }
         free_matrix(ai->weights_arr[weight_layer]);
         ai->weights_arr[weight_layer] = divide_scalar_m(total_matrix, training_size);
-        free_matrix(total_matrix);
-    }//adjusting the weights
+        //total_matrix = NULL;
+    }
+    print_AI(ai);
 
 
     printf("freeing the allocated memory\n");
     for (int i = 0; i < training_size; i++) {
         printf("%d\n", i);
         free(deltas[i]);
+        printf("freed delta arr\n");
         free_vector(inputs[i]);
+        printf("freed input\n");
         free_vector(expected_outputs[i]);
+        printf("freed expected_output\n");
     }
     printf("free pt2\n");
     free(deltas);

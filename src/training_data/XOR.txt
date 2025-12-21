@@ -1,0 +1,5 @@
+4
+src/training_data/inputs/training_data1.txt src/training_data/expected_outputs/answer_key1.txt
+src/training_data/inputs/training_data2.txt src/training_data/expected_outputs/answer_key2.txt
+src/training_data/inputs/training_data3.txt src/training_data/expected_outputs/answer_key2.txt
+src/training_data/inputs/training_data4.txt src/training_data/expected_outputs/answer_key1.txt

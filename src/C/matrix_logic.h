@@ -1,11 +1,13 @@
 #ifndef AI_MATRIX_LOGIC_H
 #define AI_MATRIX_LOGIC_H
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-
+int matrixes = 0;
+int vectors = 0;
 
 struct vector {
     unsigned int size;
@@ -76,6 +78,7 @@ struct vector* make_vector(const unsigned int size) {
     struct vector* vec = malloc(sizeof(struct vector));
     vec->size = size;
     vec->values = malloc(sizeof(double) * size);
+    vectors++;
     return vec;
 }
 struct vector* make_vector_from_txt(char* filename) {
@@ -101,6 +104,7 @@ struct matrix* make_matrix(const unsigned int rows, const unsigned int cols) {
     for (int mat_r = 0; mat_r < mat->rows; mat_r++) {
         mat->weights[mat_r] = malloc(sizeof(double) * cols);
     }
+    matrixes++;
     return mat;
 }
 void free_vector(struct vector* vec) {
@@ -111,7 +115,7 @@ void free_vector(struct vector* vec) {
     free(vec->values);
     free(vec);
     vec = NULL;
-
+    vectors--;
 }
 void free_matrix(struct matrix* mat) {
     if (mat == NULL) {
@@ -130,6 +134,7 @@ void free_matrix(struct matrix* mat) {
     free(mat->weights);
     free(mat);
     mat = NULL;
+    matrixes--;
 }
 
 

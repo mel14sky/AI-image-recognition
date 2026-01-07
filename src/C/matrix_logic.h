@@ -38,7 +38,7 @@ struct AI {
 
 
 
-void print_v(const struct vector* vec) {
+void print_v(struct vector* vec) {
     if (vec == NULL) {
         printf("Error: vector is NULL\n");
         return;
@@ -48,7 +48,7 @@ void print_v(const struct vector* vec) {
     }
     printf("\n");
 }
-void print_m(const struct matrix* mat) {
+void print_m(struct matrix* mat) {
     if (mat == NULL) {
         printf("Error: matrix is NULL\n");
         return;
@@ -66,7 +66,7 @@ void print_m(const struct matrix* mat) {
     printf("\n");
 }
 
-void fill_random_v(const struct vector* vec) {
+void fill_random_v(struct vector* vec) {
     if (vec == NULL) {
         printf("Error: vector is NULL\n");
         return;
@@ -75,7 +75,7 @@ void fill_random_v(const struct vector* vec) {
         vec->values[i] = rand() % 2000 / 1000.0 - 1;
     }
 }
-void fill_random_m(const struct matrix* mat) {
+void fill_random_m(struct matrix* mat) {
     if (mat == NULL) {
         printf("Error: matrix is NULL\n");
         return;
@@ -152,7 +152,7 @@ void free_matrix(struct matrix* mat) {
 }
 
 
-struct vector* multiply(const struct matrix* mat, const struct vector* vec) {
+struct vector* multiply(struct matrix* mat, struct vector* vec) {
     if (mat == NULL || vec == NULL) {
         printf("Error: matrix weights is NULL\n");
         return NULL;
@@ -171,7 +171,7 @@ struct vector* multiply(const struct matrix* mat, const struct vector* vec) {
     }
     return result;
 }
-struct vector* multiply_add_bias(const struct matrix* mat, const struct vector* vec) {
+struct vector* multiply_add_bias(struct matrix* mat, struct vector* vec) {
     if (mat == NULL || vec == NULL) {
         printf("Error: matrix weights is NULL\n");
         return NULL;
@@ -192,7 +192,7 @@ struct vector* multiply_add_bias(const struct matrix* mat, const struct vector* 
     result->values[mat->rows] = 1;
     return result;
 }
-struct vector* multiply_elements_v_v(const struct vector* vec1, const struct vector* vec2) {
+struct vector* multiply_elements_v_v(struct vector* vec1, struct vector* vec2) {
     if (vec1 == NULL || vec2 == NULL) {
         printf("Error: vector is NULL\n");
         return NULL;
@@ -208,7 +208,7 @@ struct vector* multiply_elements_v_v(const struct vector* vec1, const struct vec
     }
     return result;
 }
-struct matrix* multiply_v_vt(const struct vector* vec1, const struct vector* vec2_t, const struct AI* ai) {
+struct matrix* multiply_v_vt(struct vector* vec1, struct vector* vec2_t, struct AI* ai) {
     if (vec1 == NULL || vec2_t == NULL || ai == NULL) {
         printf("Error: vector is NULL\n");
         return NULL;
@@ -222,7 +222,7 @@ struct matrix* multiply_v_vt(const struct vector* vec1, const struct vector* vec
     }
     return result;
 }
-void multiply_scalar_v(const struct vector* vec, const double scalar) {
+void multiply_scalar_v(struct vector* vec, double scalar) {
     if (vec == NULL) {
         printf("Error: vector is NULL\n");
         return;
@@ -231,7 +231,7 @@ void multiply_scalar_v(const struct vector* vec, const double scalar) {
         vec->values[vec_i] *= scalar;
     }
 }
-struct matrix* divide_scalar_m(const struct matrix* mat, const double scalar) {
+struct matrix* divide_scalar_m(struct matrix* mat, const double scalar) {
     if (mat == NULL) {
         printf("Error: matrix is NULL\n");
         return NULL;
@@ -245,7 +245,7 @@ struct matrix* divide_scalar_m(const struct matrix* mat, const double scalar) {
     return result;
 }
 
-void matrix_fill(const struct matrix* mat, const double fill_value) {
+void matrix_fill(struct matrix* mat, double fill_value) {
     if (mat == NULL) {
         printf("Error: matrix is NULL\n");
         return;
@@ -256,7 +256,7 @@ void matrix_fill(const struct matrix* mat, const double fill_value) {
         }
     }
 }
-void matrix_add(const struct matrix* mat1, const struct matrix* mat2) {
+void matrix_add(struct matrix* mat1, struct matrix* mat2) {
     if (mat1 == NULL || mat2 == NULL) {
         printf("Error: matrix is NULL\n");
         return;
@@ -273,7 +273,7 @@ void matrix_add(const struct matrix* mat1, const struct matrix* mat2) {
         }
     }
 }
-struct matrix* transpose_m(const struct matrix* mat) {
+struct matrix* transpose_m(struct matrix* mat) {
     if (mat == NULL) {
         printf("Error: matrix is NULL\n");
         return NULL;
@@ -286,7 +286,7 @@ struct matrix* transpose_m(const struct matrix* mat) {
     }
     return result;
 }
-struct vector* vector_subtract(const struct vector* vec1, const struct vector* vec2) {
+struct vector* vector_subtract(struct vector* vec1, struct vector* vec2) {
     if (vec1->size != vec2->size) {
         printf("vector_subtract cant subtract different sized vectors\n");
         return NULL;
@@ -299,7 +299,7 @@ struct vector* vector_subtract(const struct vector* vec1, const struct vector* v
 }
 
 
-void activation_function(const struct vector* vec) {
+void activation_function(struct vector* vec) {
     if (vec == NULL) {
         printf("vector is NULL\n");
         return;
@@ -308,7 +308,7 @@ void activation_function(const struct vector* vec) {
         vec->values[i] == 1.0 / (1.0 + exp(-vec->values[i]));
     }
 }
-struct vector* derivative_activation_function(const struct vector* vec) {
+struct vector* derivative_activation_function(struct vector* vec) {
     if (vec == NULL) {
         printf("vector is NULL\n");
         return NULL;
@@ -322,7 +322,7 @@ struct vector* derivative_activation_function(const struct vector* vec) {
 
 
 
-struct AI* create_AI(const int* layer_arr, const unsigned short layers, const double learning_rate) {
+struct AI* create_AI(int* layer_arr, unsigned short layers, double learning_rate) {
     if (layer_arr == NULL) {
         printf("Error: layer sizes is NULL\n");
         return NULL;
@@ -352,7 +352,7 @@ void free_AI(struct AI* ai) {
     free(ai);
     ai = NULL;
 }
-void print_AI(const struct AI* ai) {
+void print_AI(struct AI* ai) {
     if (ai == NULL) {
         printf("Error: AI is NULL\n");
         return;
@@ -363,7 +363,8 @@ void print_AI(const struct AI* ai) {
     }
 
 }
-void randomize_AI_weights(const struct AI* ai) {
+void randomize_AI_weights(
+    struct AI* ai) {
     if (ai == NULL) {
         printf("Error: AI is NULL\n");
         return;
@@ -405,7 +406,7 @@ struct AI* create_AI_from_txt(char* txt_file) {
     printf("ai created from %s\n", txt_file);
     return ai;
 }
-void save_AI_to_txt(const struct AI* ai, char* txt_file) {
+void save_AI_to_txt(struct AI* ai, char* txt_file) {
     if (ai == NULL) {
         printf("Error: ai is NULL\n");
         return;
@@ -437,7 +438,7 @@ void save_AI_to_txt(const struct AI* ai, char* txt_file) {
 }
 
 
-struct matrix* calculate_deltas(const struct AI* ai, const struct vector* input, const struct vector* output, const struct vector* output_error) {
+struct matrix* calculate_deltas(struct AI* ai, struct vector* input, struct vector* output, struct vector* output_error) {
     if (ai == NULL || input == NULL || output == NULL || output_error == NULL) {
         printf("Error: somthing is NULL\n");
         return NULL;
@@ -454,7 +455,7 @@ struct matrix* calculate_deltas(const struct AI* ai, const struct vector* input,
     return deltas;
 }
 
-void train(const struct AI* ai, char* training_index_file) {
+void train(struct AI* ai, char* training_index_file) {
     if (ai == NULL) {
         printf("Error: invalid ai\n");
         return;
@@ -470,21 +471,22 @@ void train(const struct AI* ai, char* training_index_file) {
     }
     printf("file loaded\n");
 
-    const struct matrix** total_deltas = malloc(sizeof(struct matrix*) * ai->layers - 1);
+    struct matrix** total_deltas = malloc(sizeof(struct matrix*) * ai->layers - 1);
     for (int weight_layer = 0; weight_layer < ai->layers - 2; weight_layer++) {
-        const struct matrix* total_matrix = make_matrix(ai->weights_arr[weight_layer]->rows, ai->weights_arr[weight_layer]->cols);
+        struct matrix* total_matrix = make_matrix(ai->weights_arr[weight_layer]->rows, ai->weights_arr[weight_layer]->cols);
         matrix_fill(total_matrix, 0);
     }
     printf("deltas matrix's made\n");
 
     for (int training_count = 0; training_count < training_size; training_count++) {
-        const struct vector** hidden = NULL;
-        const struct vector* output = feed_forward(hidden, inputs[training_count], ai);
+        struct vector** hidden = NULL;
+        printf("feed forward calling\n");
+        struct vector* output = feed_forward(hidden, inputs[training_count], ai);
         printf("forward feed done\n");
 
 
-        const struct vector* output_error = vector_subtract(output, expected_outputs[training_count]);
-        const struct vector** hidden_errors = back_propogation(output_error, ai);
+        struct vector* output_error = vector_subtract(output, expected_outputs[training_count]);
+        struct vector** hidden_errors = back_propogation(output_error, ai);
         printf("back propagation done\n");
 
 
@@ -565,7 +567,7 @@ int load_from_locator(struct vector** o_inputs, struct vector** o_outputs, char*
 
     return training_size;
 }
-const struct vector* feed_forward(const struct vector** o_hidden, const struct vector* input, const struct AI* ai) {
+struct vector* feed_forward(struct vector** o_hidden, struct vector* input, struct AI* ai) {
     printf("feed forward started\n");
     o_hidden = malloc(sizeof(struct vector*) * (ai->layers - 2));
     o_hidden[0] = multiply_add_bias(ai->weights_arr[0], input);
@@ -578,7 +580,7 @@ const struct vector* feed_forward(const struct vector** o_hidden, const struct v
     activation_function(output);
     return output;
 }
-const struct vector** back_propogation(const struct vector* output_error, const struct AI* ai) {
+struct vector** back_propogation(struct vector* output_error, struct AI* ai) {
     struct vector** hidden_errors = malloc(sizeof(struct vector*) * (ai->layers - 2));
     struct matrix* weights_t = transpose_m(ai->weights_arr[ai->layers - 2]);
     hidden_errors[ai->layers - 3] = multiply(weights_t, output_error);
@@ -590,7 +592,7 @@ const struct vector** back_propogation(const struct vector* output_error, const 
     }
     return hidden_errors;
 }
-void adding_deltas(const struct matrix** total_delta, const struct vector* input, const struct vector** hidden, const struct vector** hidden_error, const struct vector* output, const struct vector* output_error, const struct AI* ai) {
+void adding_deltas(struct matrix** total_delta, struct vector* input, struct vector** hidden, struct vector** hidden_error, struct vector* output, struct vector* output_error, struct AI* ai) {
     if (total_delta == NULL || hidden == NULL) {
         printf("Error: total_delta is NULL\n");
         return;

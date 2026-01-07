@@ -363,8 +363,7 @@ void print_AI(struct AI* ai) {
     }
 
 }
-void randomize_AI_weights(
-    struct AI* ai) {
+void randomize_AI_weights(struct AI* ai) {
     if (ai == NULL) {
         printf("Error: AI is NULL\n");
         return;

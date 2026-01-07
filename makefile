@@ -1,5 +1,5 @@
 trainable_AI: build src/C/AI.c src/C/matrix_logic.h 
-	gcc src/C/AI.c -o build/AI_trainable
+	gcc src/C/AI_trainable.c -o build/AI_trainable
 
 clean:
 	rm -rf build

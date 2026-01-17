@@ -9,7 +9,7 @@
 
 int main(void) {
 
-
+    warnings = 0;
 
 
     //struct AI* ai = create_AI_from_txt("output.txt");

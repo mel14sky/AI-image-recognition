@@ -35,12 +35,12 @@ void save_AI_to_txt(const struct AI*, char*);
 struct matrix* calculate_deltas(const struct AI*, const struct vector*, const struct vector*, const struct vector*);
 //void train_single(const struct AI*, char*, char*);
 void train(const struct AI*, char*);
-int load_from_locator(struct vector**, struct vector**, char*);
-struct vector* feed_forward(struct vector**, const struct vector*, const struct AI*);
+struct training_data* load_from_locator(char*);
+struct feed_forward_return* feed_forward(const struct vector*, const struct AI*);
 struct vector** back_propagation(const struct vector*, const struct AI*);
-void adding_deltas(struct matrix**, const struct vector*, struct vector**, struct vector**, const struct vector*, const struct vector*, const struct AI*);
-
-
+void adding_deltas(struct matrix**, const struct vector*, struct feed_forward_return*, struct vector**, const struct vector*, const struct AI*);
+void free_training_data(struct training_data* training_data);
+void free_feed_forward_return(struct feed_forward_return* feed_forward_return, const struct AI* ai);
 
 
 #endif //AI_MATRIX_LOCATOR_H

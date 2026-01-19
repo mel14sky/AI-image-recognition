@@ -24,7 +24,7 @@ greeting.pack()
 label = tk.Label(root, text = "Upload an image of a Pokemon to identify it.", foreground = "black", bg = "red")
 label.pack()
 
-# Function to process the uploaded image
+# Function to process the uploaded image and save it to pokemon_image.txt
 def process_image():
     image_path = tkinter_entry.get()
     image = cv2.imread(image_path)
@@ -34,9 +34,12 @@ def process_image():
     else:
         image_resize = cv2.resize(image, None, fx = 0.01, fy = 0.01, interpolation = cv2.INTER_LINEAR)
         image_grey = cv2.cvtColor(image_resize, cv2.COLOR_BGR2GRAY)
-        total_elements = image_grey.size
-        np.savetxt("pokemon_image.txt", image_grey, fmt='%.6f', header = f"{total_elements}", comments = "")
-      
+        flat = image_grey.flatten()
+        total_elements = flat.size
+        with open("pokemon_image.txt", "w") as f:
+            f.write(f"{total_elements}\n")
+            for value in flat:
+                f.write(f"{value:.6f}\n")
 
 # Uploads processed image when button is clicked
 button = tk.Button(root, text = "Upload Image", command = process_image, fg = "black", bg = "red")

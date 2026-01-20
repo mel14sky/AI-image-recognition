@@ -354,7 +354,7 @@ struct vector* multiply(const struct matrix* mat, const struct vector* vec) {
         return NULL;
     }
     if (vec->size != mat->cols) {
-        printf("Error: matrix and vector does not match [multiply]\n");
+        printf("Error: matrix and vector does not match v = %d m = %d[multiply]\n", vec->size, mat->cols);
         return NULL;
     }
 
@@ -391,7 +391,7 @@ struct vector* multiply_add_bias(const struct matrix* mat, const struct vector* 
         return NULL;
     }
     if (vec->size != mat->cols) {
-        printf("Error: matrix and vector does not match [multiply + bias]\n");
+        printf("Error: matrix and vector does not match vec = %d mat = %d[multiply + bias]\n", vec->size, mat->cols);
         return NULL;
     }
 
@@ -481,7 +481,43 @@ struct vector* vector_subtract(const struct vector* vec1, const struct vector* v
     }
     return result;
 }
+struct vector* multiply_ingore_bias(struct matrix* weights_t, struct vector* hidden_errors) {
+    if (weights_t == NULL) {
+        printf("Error: matrix is NULL [multiply]\n");
+        return NULL;
+    }
+    if (weights_t == NULL) {
+        printf("Error: vector is NULL [multiply]\n");
+        return NULL;
+    }
+    if (weights_t->weights == NULL) {
+        printf("Error: matrix weights is NULL [multiply]\n");
+        return NULL;
+    }
+    if (hidden_errors->values == NULL) {
+        printf("Error: vector values is NULL [multiply]\n");
+        return NULL;
+    }
+    if (hidden_errors->size - 1 != weights_t->cols) {
+        printf("Error: matrix and vector does not match v = %d m = %d[multiply]\n", hidden_errors->size, weights_t->cols);
+        return NULL;
+    }
 
+    struct vector* result = make_vector(weights_t->rows);
+    if (result == NULL) {
+        printf("Error: created vector is NULL [multiply]\n");
+        return NULL;
+    }
+    for (int mat_r = 0; mat_r < weights_t->rows; mat_r++) {
+        double sum = 0;
+        for (int mat_c = 0; mat_c < weights_t->cols; mat_c++) {
+
+            sum += weights_t->weights[mat_r][mat_c] * hidden_errors->values[mat_c];
+        }
+        result->values[mat_r] = sum;
+    }
+    return result;
+}
 
 
 //AI actions
@@ -647,6 +683,7 @@ void train(const struct AI* ai, char* training_index_file) {
     struct training_data* training_data = load_from_locator(training_index_file);
     if (training_data->size <= 0) {
         printf("Error: invalid training size [train]\n");
+        free_training_data(training_data);
         return;
     }
 
@@ -665,7 +702,11 @@ void train(const struct AI* ai, char* training_index_file) {
 
     for (int training_count = 0; training_count < training_data->size; training_count++) {
         struct feed_forward_return* feed_forward_data = feed_forward(training_data->inputs[training_count], ai);
-
+        if (feed_forward_data == NULL) {
+            printf("Error: could not make feed_forward return [train]\n");
+            free_training_data(training_data);
+            return;
+        }
 
         struct vector* output_error = vector_subtract(feed_forward_data->output, training_data->expected_outputs[training_count]);
         struct vector** hidden_errors = back_propagation(output_error, ai);
@@ -686,9 +727,10 @@ void train(const struct AI* ai, char* training_index_file) {
 
 
     for (int weight_layer = 0; weight_layer < ai->layers - 1; weight_layer++) {
-        free_matrix(ai->weights_arr[weight_layer]);
-        ai->weights_arr[weight_layer] = divide_scalar_m(total_deltas[weight_layer], training_data->size);
+        struct matrix* adjustment_deltas = divide_scalar_m(total_deltas[weight_layer], training_data->size);
+        matrix_add(ai->weights_arr[weight_layer], adjustment_deltas);
         free_matrix(total_deltas[weight_layer]);
+        free_matrix(adjustment_deltas);
     }
 
 
@@ -791,7 +833,7 @@ struct vector** back_propagation(const struct vector* output_error, const struct
     free_matrix(weights_t);
     for (int i = ai->layers - 4; i >= 0; i--) {
         weights_t = transpose_m(ai->weights_arr[i+1]);
-        hidden_errors[i] = multiply(weights_t, hidden_errors[i+1]);
+        hidden_errors[i] = multiply_ingore_bias(weights_t, hidden_errors[i+1]);
         free_matrix(weights_t);
     }
     return hidden_errors;

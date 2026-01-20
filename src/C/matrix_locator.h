@@ -14,6 +14,7 @@ struct matrix* make_matrix(unsigned int, unsigned int);
 struct vector* make_vector_from_txt(char*);
 void free_vector(struct vector*);
 void free_matrix(struct matrix*);
+void multiply_scalar_m(struct matrix* mat, double scalar);
 struct vector* multiply(const struct matrix*, const struct vector*);
 struct vector* multiply_add_bias(const struct matrix*, const struct vector*);
 struct vector* multiply_elements_v_v(const struct vector*, const struct vector*);

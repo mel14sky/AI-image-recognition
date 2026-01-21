@@ -73,7 +73,6 @@ def main():
                 else:
                 # Converts images to BMP format
                     for filename in files_inside:
-                        # path = path_name + "/" + pokemon_name + "/" + filename
                         current_path = os.path.join(path_name, pokemon_name, filename)
                         bmp_path = convert_bmp(current_path)
                         if bmp_path:
@@ -86,6 +85,7 @@ def main():
         print("order.txt not found.")
 
 main()
+
 
 
 

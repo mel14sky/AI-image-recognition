@@ -41,7 +41,7 @@ struct feed_forward_return {
 
 
 //activation functions
-/*inline double exp(const double x) {
+inline double exp(const double x) {
     double result = 1.0;
     double value = 1.0;
     for (int i = 1; i < 8; i++) {// accurate-ness (i can't spell)
@@ -49,7 +49,7 @@ struct feed_forward_return {
         result += value;
     }
     return result;
-}*/ //formula e^x used in sigmoid [activation function]
+} //formula e^x used in sigmoid [activation function]
 void activation_function(const struct vector* vec) {
     if (vec == NULL) {
         printf("vector is NULL [activation function]\n");

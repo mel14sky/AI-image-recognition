@@ -23,7 +23,7 @@ int main(void) {
     printf("matrix = %d\nvectors = %d\n", matrix_count, vectors);
 
     for (int i = 0; i < 1; i++) {
-        train(ai, "XOR.txt");
+        train(ai, "src/training_data/XOR.txt");
     }
     print_AI(ai);
     printf("matrix = %d\nvectors = %d\n\n", matrix_count, vectors);
@@ -45,7 +45,7 @@ int main(void) {
 
 
 
-    save_AI_to_txt(ai, "output.txt");
+    save_AI_to_txt(ai, "output_AI.txt");
     free_AI(ai);
     printf("freed\n");
     printf("matrix = %d\nvectors = %d\n", matrix_count, vectors);

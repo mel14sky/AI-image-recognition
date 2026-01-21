@@ -6,7 +6,7 @@
 //3 = true
 //4 = false
 
-#define number_of_layers 6
+#define number_of_layers 3
 
 
 int main(void) {
@@ -15,18 +15,18 @@ int main(void) {
 
 
     //struct AI* ai = create_AI_from_txt("output.txt");
-    const int layers_arr[number_of_layers] = {2, 10, 5, 6, 3, 1};
+    const int layers_arr[number_of_layers] = {2, 5, 1};
     struct AI* ai = create_AI(layers_arr, number_of_layers, 0.05);
     randomize_AI_weights(ai);
 
     print_AI(ai);
     printf("matrix = %d\nvectors = %d\n", matrix_count, vectors);
 
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 1; i++) {
         train(ai, "XOR.txt");
-        //print_AI(ai);
-        printf("matrix = %d\nvectors = %d\n", matrix_count, vectors);
     }
+    print_AI(ai);
+    printf("matrix = %d\nvectors = %d\n\n", matrix_count, vectors);
 
     int num = 0;
     while (num != 69) {

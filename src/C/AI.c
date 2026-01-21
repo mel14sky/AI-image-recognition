@@ -3,13 +3,9 @@
 
 
 
-int main(int argc, char** argv) {
-    if (argc != 3) {
-        printf("argument count not correct\n");
-        return -1;
-    }
-    struct AI* ai = make_AI_from_txt(argv[1]);
-    struct vector* input = make_vector_from_txt(argv[2]);
+int main() {
+    struct AI* ai = make_AI_from_txt("build/output_AI.txt");
+    struct vector* input = make_vector_from_txt("build/input_vector.txt");
 
     struct vector* hidden = multiply_add_bias(ai->weights_arr[0], input);
     activation_function(hidden);

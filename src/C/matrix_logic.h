@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <math.h>
 
 
 
@@ -41,7 +41,7 @@ struct feed_forward_return {
 
 
 //activation functions
-inline double exp(const double x) {
+/*inline double exp(const double x) {
     double result = 1.0;
     double value = 1.0;
     for (int i = 1; i < 8; i++) {// accurate-ness (i can't spell)
@@ -49,7 +49,7 @@ inline double exp(const double x) {
         result += value;
     }
     return result;
-} //formula e^x used in sigmoid [activation function]
+}*/ //formula e^x used in sigmoid [activation function]
 void activation_function(const struct vector* vec) {
     if (vec == NULL) {
         printf("vector is NULL [activation function]\n");
@@ -61,7 +61,7 @@ void activation_function(const struct vector* vec) {
     }
 
     for (int i = 0; i < vec->size; i++) {
-        vec->values[i] == 1.0 / (1.0 + exp(-vec->values[i]));
+        vec->values[i] = 1.0 / (1.0 + exp(-vec->values[i]));
     }
 }
 struct vector* derivative_activation_function(const struct vector* vec) {
@@ -701,20 +701,28 @@ void train(const struct AI* ai, char* training_index_file) {
 
 
     for (int training_count = 0; training_count < training_data->size; training_count++) {
+        // printf("input = \n");
+        // print_v(training_data->inputs[training_count]);
         struct feed_forward_return* feed_forward_data = feed_forward(training_data->inputs[training_count], ai);
         if (feed_forward_data == NULL) {
             printf("Error: could not make feed_forward return [train]\n");
             free_training_data(training_data);
             return;
         }
-
+        // printf("feed forward data = o, h0\n");
+        // print_v(feed_forward_data->output);
+        // print_v(feed_forward_data->hidden[0]);
+        // printf("errors = o, h0");
         struct vector* output_error = vector_subtract(feed_forward_data->output, training_data->expected_outputs[training_count]);
+        // print_v(output_error);
         struct vector** hidden_errors = back_propagation(output_error, ai);
-
+        // print_v(hidden_errors[0]);
 
 
         adding_deltas(total_deltas, training_data->inputs[training_count],  feed_forward_data,  hidden_errors,  output_error, ai);
-
+        // printf("total deltas");
+        // print_m(total_deltas[0]);
+        // print_m(total_deltas[1]);
 
 
         for (int i = 0; i < ai->layers - 2; i++) {
@@ -805,9 +813,11 @@ struct feed_forward_return* feed_forward(const struct vector* input, const struc
     feed_forward_data->hidden = malloc(sizeof(struct vector*) * (ai->layers - 2));
     feed_forward_data->hidden[0] = multiply_add_bias(ai->weights_arr[0], input);
     activation_function(feed_forward_data->hidden[0]);
+    feed_forward_data->hidden[0]->values[feed_forward_data->hidden[0]->size - 1] = 1;
     for (int i = 1; i < ai->layers - 2; i++) {
         feed_forward_data->hidden[i] = multiply_add_bias(ai->weights_arr[i], feed_forward_data->hidden[i-1]);
         activation_function(feed_forward_data->hidden[i]);
+        feed_forward_data->hidden[0]->values[feed_forward_data->hidden[0]->size - 1] = 1;
     }
     feed_forward_data->output = multiply(ai->weights_arr[ai->layers - 2], feed_forward_data->hidden[ai->layers - 3]);
     activation_function(feed_forward_data->output);
@@ -828,6 +838,7 @@ struct vector** back_propagation(const struct vector* output_error, const struct
     }
 
     struct vector** hidden_errors = malloc(sizeof(struct vector*) * (ai->layers - 2));
+
     struct matrix* weights_t = transpose_m(ai->weights_arr[ai->layers - 2]);
     hidden_errors[ai->layers - 3] = multiply(weights_t, output_error);
     free_matrix(weights_t);
